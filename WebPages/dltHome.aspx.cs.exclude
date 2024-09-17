@@ -1,0 +1,571 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Web.Services;
+using System.Data.SqlClient;
+public partial class WebPages_Home : System.Web.UI.Page
+{
+    DataManager objDM = new DataManager();
+    sms.Service1 mySMS = new sms.Service1();
+    Cls_ErrorHandler errObj = new Cls_ErrorHandler();
+    clsMembers objMembers = new clsMembers();
+    clsInstitutionMaster objIns = new clsInstitutionMaster();
+    clsEncryptDecrypt objEnc = new clsEncryptDecrypt();
+    // public static string  strChartOption ="" ;
+    // public static int intInstIdForChart = 0;
+
+
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!IsPostBack)
+        {
+            //strChartOption = Request.Cookies["InstAdmin_RoleType"].Value.ToString();
+            //DisplayChartInstitution();
+            FnBindValues();
+            //  pnlInstitutionChart.Visible = false;
+            // divMemberDetails.Visible = false;
+        }
+    }
+    private void FnBindValues()
+    {
+        try
+        {
+
+            string strBindQry = "select 0,'--Select--' union all select Institution_MasterId, Institution_Name from dbo.tbl_InstitutionMaster where Institution_ActiveFlag=1";
+            DataSet ds = objDM.GetDataSet(strBindQry);
+
+            if (ds != null)
+            {
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+                    ddlInstitution.DataTextField = ds.Tables[0].Columns[1].ToString();
+                    ddlInstitution.DataValueField = ds.Tables[0].Columns[0].ToString();
+                    ddlInstitution.DataSource = ds.Tables[0];
+                    ddlInstitution.DataBind();
+                    string strAdminRoleType = Request.Cookies["InstAdmin_RoleType"].Value.ToString();
+                    //HttpContext.Current.Response.Cookies.Get("InstAdmin_RoleType");
+
+                    int InstitutionMid = 0;
+                    if (Request.Cookies["InstAdmin_InstitutionMid"] != null)
+                    {
+                        InstitutionMid = int.Parse(Request.Cookies["InstAdmin_InstitutionMid"].Value.ToString());
+                        divMemberDetails.Visible = false;
+                        lblMandatory.Visible = true;
+                        lblMandatoryName.Visible = true;
+                        // intChartOption = 0;//SuperAdmin;
+                        pnlInstitutionChart.Visible = true;
+
+
+                    }
+                    if (InstitutionMid != 0 && strAdminRoleType == "Institution Admin")
+                    {
+                        //  pnlCourseChart.Visible = true;
+                        ddlInstitution.SelectedValue = InstitutionMid.ToString();
+                        ddlInstitution_SelectedIndexChanged(null, null);
+                        lblMandatory.Visible = false;
+                        lblMandatoryName.Visible = false;
+                        ddlInstitution.Enabled = false;
+                        divMemberDetails.Visible = true;
+                        pnlInstitutionChart.Visible = false;
+                        // intChartOption = 1;//Institution Admin;
+
+                    }
+                    else
+                    {
+                        ddlInstitution.Enabled = true;
+                    }
+
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            errObj.SaveReportInXML("FnBindValues()", ex.ToString());
+            ex.Data.Clear();
+            Response.Redirect("../oops.aspx");
+        }
+    }
+    protected void ddlInstitution_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        try
+        {
+            if (ddlInstitution.SelectedIndex > 0)
+            {
+
+                int intInstitutionMid = int.Parse(ddlInstitution.SelectedValue.ToString());
+
+                string strAdminRoleType = Request.Cookies["InstAdmin_RoleType"].Value.ToString();
+                if (strAdminRoleType == "Super Admin")
+                {
+                    DisplayChartInstitution();
+
+                }
+                divMemberDetails.Visible = true;
+                if (intInstitutionMid == 22)
+                {
+                    string strUGCourseQry = " Select Upper(mem_MainCourseUG) as InstitutionName, Count(mem_MasterID) as TotalInstitution " +
+                                            "from dbo.tbl_Members where mem_ActiveFlag=1 and mem_MainCourseUG<>'' " +
+                                            "and mem_InstitutionMid='" + intInstitutionMid + "' group by mem_MainCourseUG";
+
+                    DisplayChartUGCourse(strUGCourseQry);
+
+                    string strPGCourseQry = "Select Upper(mem_MainCoursePG) as InstitutionName, Count(mem_MasterID) as TotalInstitution " +
+                                            "from dbo.tbl_Members where mem_ActiveFlag=1 and mem_MainCoursePG<>'' " +
+                                            "and mem_InstitutionMid='" + intInstitutionMid + "' group by mem_MainCoursePG";
+                    DisplayChartPGCourse(strPGCourseQry);
+
+                    string strSuperSpcl = "Select Upper(Course_Name) as CourseName, Count(mem_MasterID) as TotalCount " +
+                                          " from tbl_Members " +
+                                          " inner join dbo.tbl_CourseMaster on Course_InstitutionId=mem_InstitutionMid " +
+                                          " Where Course_Activeflag=1 and mem_ActiveFlag=1 and" +
+                                          " Course_Type like 'Super%' and mem_IsSuperSpecialityDone='Yes' and " + 
+                                          " mem_SuperSpltyCollege not like '#%' and " +
+                                          " mem_InstitutionMid='" + intInstitutionMid + "' group by Course_Name ";
+
+                    DisplayChartSuperSpecialityCourse(strSuperSpcl);
+                }
+                else
+                {       
+                    //chart for Other Colleges
+                    string strUGCourse =/* "Select Upper(Course_Type) as CourseType, Count(mem_MasterID) as TotalCount " +
+                                             " from dbo.tbl_Members" +
+                                             " inner join dbo.tbl_CourseMaster on Course_Mid=mem_CourseMid " +
+                                             " where Course_Activeflag=1 and mem_ActiveFlag=1 and " +
+                                             "mem_InstitutionMid='" + intInstitutionMid + "' " +
+                                             "and Course_Type<>'Super Speciality' and mem_IsPgDone='Yes'"+
+                                             " and mem_PgCollege not like '#%' group by Course_Type";*/
+
+                                    " Select Upper(Course_Type) as CourseType, Count(mem_MasterID) as TotalCount " +
+                                    " from dbo.tbl_Members " +
+                                    " inner join dbo.tbl_CourseMaster on Course_InstitutionId=mem_InstitutionMid " +
+                                    " where Course_Activeflag=1 and mem_ActiveFlag=1 " +
+                                    " and Course_Type<>'Super Speciality'  and mem_InstitutionMid='" + intInstitutionMid + "'" +
+                                    " and mem_IsPgDone='Yes' and mem_PgCollege not like '#%' " +
+                                    " group by Course_Type";
+                    DisplayCourseChartForOtherCollege(strUGCourse);
+                }
+                a_PendingReg.HRef = "ViewMembers.aspx?Opt=1&INSTMID=" + ddlInstitution.SelectedValue.ToString();
+                a_ApprovedReg.HRef = "ViewMembers.aspx?Opt=2&INSTMID=" + ddlInstitution.SelectedValue.ToString();
+                a_TotalReg.HRef = "ViewMembers.aspx?Opt=3&INSTMID=" + ddlInstitution.SelectedValue.ToString();
+
+                //  DisplayChartInstitution();
+
+                DataSet ds1 = new DataSet();
+                ds1 = objMembers.GetMemberDetails(9, intInstitutionMid, "Pending");
+                if (ds1 != null)
+                {
+                    if (ds1.Tables[0].Rows.Count > 0)
+                    {
+                        lblMemberRequest.Text = ds1.Tables[0].Rows.Count.ToString();
+                    }
+                    else
+                    {
+                        lblMemberRequest.Text = "0";
+                    }
+                }
+                DataSet ds2 = objMembers.GetMemberDetails(9, intInstitutionMid, "Approved");
+                if (ds2 != null)
+                {
+                    if (ds2.Tables[0].Rows.Count > 0)
+                    {
+                        lblApprvdMem.Text = ds2.Tables[0].Rows.Count.ToString();
+                    }
+                    else
+                    {
+                        lblApprvdMem.Text = "0";
+                    }
+                }
+
+                DataSet ds3 = objMembers.GetMemberDetails(13, intInstitutionMid, "");
+                if (ds3 != null)
+                {
+                    if (ds3.Tables[0].Rows.Count > 0)
+                    {
+                        lblTotalMembers.Text = ds3.Tables[0].Rows.Count.ToString();
+                    }
+                    else
+                    {
+                        lblTotalMembers.Text = "0";
+                    }
+                }
+
+                string TotalSMS = "0";
+                try
+                {
+                    string SMSPassword = "";
+                    string SMSUserName = "";
+
+                    DataSet ds5 = objIns.GetInstitutionDetailsInView(5, intInstitutionMid);
+                    if (ds5 != null)
+                    {
+                        if (ds5.Tables[0].Rows.Count > 0)
+                        {
+                            SMSUserName = ds5.Tables[0].Rows[0]["Institution_SMSUserName"].ToString();
+                            SMSPassword = objEnc.Decrypt(ds5.Tables[0].Rows[0]["Institution_SMSPassword"].ToString());
+                        }
+                    }
+                    TotalSMS = mySMS.FnGetSMSSentCount(SMSUserName, SMSPassword);
+                }
+                catch
+                {
+                    //error page
+                }
+                lblSmsSent.Text = TotalSMS;
+            }
+            else
+            {
+                //  DisplayChartInstitution();
+                divMemberDetails.Visible = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            errObj.SaveReportInXML("ddlInstitution_SelectedIndexChanged", ex.ToString());
+            ex.Data.Clear();
+            Response.Redirect("../oops.aspx");
+        }
+    }
+
+
+    #region "CHART FOR INSTITUTION (Super Admin)"
+
+    private void DisplayChartInstitution()
+    {
+        try
+        {
+
+            objDM.OpenSQLConnection();
+            string strQuery = "";
+
+            //  pnlInstitutionChart.Visible = true;
+            strQuery = "Select Upper(Institution_Name) as InstitutionName, " +
+                                 " Count(Institution_MasterId) as TotalCount from dbo.tbl_InstitutionMaster " +
+                                 " Inner Join dbo.tbl_Members on mem_InstitutionMid=Institution_MasterId " +
+                                 " WHERE Institution_ActiveFlag=1 AND mem_ActiveFlag=1  GROUP BY Institution_Name ";
+
+
+            SqlDataReader dr = objDM.GetSQLDataReader(strQuery);
+            DataTable dt = new DataTable();
+            dt.Load(dr);
+            dr.Dispose();
+            //Bind to script
+            FnInstitutionSGoogleCHartBind(dt);
+            objDM.CloseConnection();
+        }
+        catch (Exception ex)
+        {
+            errObj.SaveReportInXML("DisplayChartInstitution", ex.ToString());
+            ex.Data.Clear();
+            //Response.Redirect("../oops.aspx");
+        }
+
+
+    }
+
+    private void FnInstitutionSGoogleCHartBind(DataTable DT)
+    {
+        string Script = "<script type=\"text/javascript\" src=\"https://www.google.com/jsapi\"></script>";
+        Script += "<script type=\"text/javascript\">";
+        // Load the Visualization API and the piechart package.
+        Script += " google.load('visualization', '1.0', { 'packages': ['corechart'] });";
+
+        // Set a callback to run when the Google Visualization API is loaded.
+        Script += " google.setOnLoadCallback(drawChart);";
+        // Callback that creates and populates a data table, 
+        // instantiates the pie chart, passes in the data and
+        // draws it.
+
+        Script += " function drawChart() {";
+        // Create the data table.
+        Script += " var data = new google.visualization.DataTable();";
+        Script += " data.addColumn('string', 'Topping');";
+        //  string strAdminRoleType = Request.Cookies["InstAdmin_RoleType"].Value.ToString();
+
+        Script += " data.addColumn('number', 'Institution');";
+        Script += "data.addRows(" + FnGetChartStringMAs(DT) + ");";
+        //Script += " data.addRows([['Mushrooms', 5], ['Onions', 1], ['Olives', 1], ['Zucchini', 1], ['Pepperoni', 2], ['Madhu', 2], ['Mushrooms', 5], ['Onions', 1], ['Olives', 1], ['Zucchini', 1], ['Pepperoni', 2], ['Madhu', 2]]);";
+
+        // Set chart options
+        //if (strAdminRoleType == "Super Admin")
+        //{
+
+        Script += " var options = { 'title': 'Institution Members'};";
+
+        // Instantiate and draw our chart, passing in some options.// ,pieHole: 0.2,'width': 570,'height': 470
+        //}
+        //else
+        //{
+        //    Script += " var options = { 'title': 'Course Members'};";
+        //}
+
+        Script += " var chart = new google.visualization.ColumnChart(document.getElementById('InstituionChart_Div'));";
+
+        //     Script += " var chart = new google.visualization.PieChart(document.getElementById('chart_div'));";
+
+        Script += " chart.draw(data, options);";
+        Script += " }";
+        Script += " </script>";
+        //  Script+="  }";
+
+        Page.RegisterClientScriptBlock("ClientScript", Script);
+    }
+    #endregion
+
+    #region CHART FOR COURSE (Institution Admin)"
+    #region "Chart for Medical Cllege"
+
+    private void DisplayChartUGCourse(string strCourseQry)
+    {
+        objDM.OpenSQLConnection();
+        SqlDataReader dr = objDM.GetSQLDataReader(strCourseQry);
+        DataTable dt = new DataTable();
+        dt.Load(dr);
+        dr.Dispose();
+        //Bind to script
+        FnUGCourseSGoogleCHartBind(dt);
+        objDM.CloseConnection();
+
+    }
+    private void FnUGCourseSGoogleCHartBind(DataTable DT)
+    {
+        string Script = "<script type=\"text/javascript\" src=\"https://www.google.com/jsapi\"></script>";
+        Script += "<script type=\"text/javascript\">";
+        // Load the Visualization API and the piechart package.
+        Script += " google.load('visualization', '1.0', { 'packages': ['corechart'] });";
+
+        // Set a callback to run when the Google Visualization API is loaded.
+        Script += " google.setOnLoadCallback(drawChart);";
+        // Callback that creates and populates a data table, 
+        // instantiates the pie chart, passes in the data and
+        // draws it.
+        Script += " function drawChart() {";
+        // Create the data table.
+        Script += " var data = new google.visualization.DataTable();";
+        Script += " data.addColumn('string', 'Topping');";
+        Script += " data.addColumn('number', 'UG Course');";
+        Script += "data.addRows(" + FnGetChartStringMAs(DT) + ");";
+        //Script += " data.addRows([['Mushrooms', 5], ['Onions', 1], ['Olives', 1], ['Zucchini', 1], ['Pepperoni', 2], ['Madhu', 2], ['Mushrooms', 5], ['Onions', 1], ['Olives', 1], ['Zucchini', 1], ['Pepperoni', 2], ['Madhu', 2]]);";
+
+        // Set chart options
+        Script += " var options = { 'title': 'UG Course Members'};";
+        // Instantiate and draw our chart, passing in some options.// ,pieHole: 0.2,'width': 570,'height': 470
+
+        Script += " var chart = new google.visualization.ColumnChart(document.getElementById('UGCourseChart_Div'));";
+
+        //     Script += " var chart = new google.visualization.PieChart(document.getElementById('chart_div'));";
+
+        Script += " chart.draw(data, options);";
+        Script += " }";
+        Script += " </script>";
+        //  Script+="  }";
+
+        Page.RegisterClientScriptBlock("ClientScript1", Script);
+    }
+
+    private void DisplayChartPGCourse(string strCourseQry)
+    {
+        objDM.OpenSQLConnection();
+        SqlDataReader dr = objDM.GetSQLDataReader(strCourseQry);
+        DataTable dt = new DataTable();
+        dt.Load(dr);
+        dr.Dispose();
+        //Bind to script
+        FnPGCourseSGoogleCHartBind(dt);
+        objDM.CloseConnection();
+
+    }
+    private void FnPGCourseSGoogleCHartBind(DataTable DT)
+    {
+        string Script = "<script type=\"text/javascript\" src=\"https://www.google.com/jsapi\"></script>";
+        Script += "<script type=\"text/javascript\">";
+        // Load the Visualization API and the piechart package.
+        Script += " google.load('visualization', '1.0', { 'packages': ['corechart'] });";
+
+        // Set a callback to run when the Google Visualization API is loaded.
+        Script += " google.setOnLoadCallback(drawChart);";
+        // Callback that creates and populates a data table, 
+        // instantiates the pie chart, passes in the data and
+        // draws it.
+        Script += " function drawChart() {";
+        // Create the data table.
+        Script += " var data = new google.visualization.DataTable();";
+        Script += " data.addColumn('string', 'Topping');";
+        Script += " data.addColumn('number', 'PG Course');";
+        Script += "data.addRows(" + FnGetChartStringMAs(DT) + ");";
+        //Script += " data.addRows([['Mushrooms', 5], ['Onions', 1], ['Olives', 1], ['Zucchini', 1], ['Pepperoni', 2], ['Madhu', 2], ['Mushrooms', 5], ['Onions', 1], ['Olives', 1], ['Zucchini', 1], ['Pepperoni', 2], ['Madhu', 2]]);";
+
+        // Set chart options
+        Script += " var options = { 'title': 'PG Course Members'};";
+        // Instantiate and draw our chart, passing in some options.// ,pieHole: 0.2,'width': 570,'height': 470
+
+        Script += " var chart = new google.visualization.ColumnChart(document.getElementById('PGCourseChart_Div'));";
+
+        //     Script += " var chart = new google.visualization.PieChart(document.getElementById('chart_div'));";
+
+        Script += " chart.draw(data, options);";
+        Script += " }";
+        Script += " </script>";
+        //  Script+="  }";
+
+        Page.RegisterClientScriptBlock("ClientScript2", Script);
+    }
+
+    private void DisplayChartSuperSpecialityCourse(string strCourseQry)
+    {
+        objDM.OpenSQLConnection();
+        SqlDataReader dr = objDM.GetSQLDataReader(strCourseQry);
+        DataTable dt = new DataTable();
+        dt.Load(dr);
+        dr.Dispose();
+        //Bind to script
+        FnSuperSpclCourseSGoogleCHartBind(dt);
+        objDM.CloseConnection();
+
+    }
+    private void FnSuperSpclCourseSGoogleCHartBind(DataTable DT)
+    {
+        string Script = "<script type=\"text/javascript\" src=\"https://www.google.com/jsapi\"></script>";
+        Script += "<script type=\"text/javascript\">";
+        // Load the Visualization API and the piechart package.
+        Script += " google.load('visualization', '1.0', { 'packages': ['corechart'] });";
+
+        // Set a callback to run when the Google Visualization API is loaded.
+        Script += " google.setOnLoadCallback(drawChart);";
+        // Callback that creates and populates a data table, 
+        // instantiates the pie chart, passes in the data and
+        // draws it.
+        Script += " function drawChart() {";
+        // Create the data table.
+        Script += " var data = new google.visualization.DataTable();";
+        Script += " data.addColumn('string', 'Topping');";
+        Script += " data.addColumn('number', 'Super Speciality Course');";
+        Script += "data.addRows(" + FnGetChartStringMAs(DT) + ");";
+        //Script += " data.addRows([['Mushrooms', 5], ['Onions', 1], ['Olives', 1], ['Zucchini', 1], ['Pepperoni', 2], ['Madhu', 2], ['Mushrooms', 5], ['Onions', 1], ['Olives', 1], ['Zucchini', 1], ['Pepperoni', 2], ['Madhu', 2]]);";
+
+        // Set chart options
+        Script += " var options = { 'title': 'Super Speciality Course Members'};";
+        // Instantiate and draw our chart, passing in some options.// ,pieHole: 0.2,'width': 570,'height': 470
+
+        Script += " var chart = new google.visualization.ColumnChart(document.getElementById('SuperSpclCourseChart_Div'));";
+
+        //     Script += " var chart = new google.visualization.PieChart(document.getElementById('chart_div'));";
+
+        Script += " chart.draw(data, options);";
+        Script += " }";
+        Script += " </script>";
+        //  Script+="  }";
+
+        Page.RegisterClientScriptBlock("ClientScript3", Script);
+    }
+    #endregion
+
+    #region "Chart for Other Colleges"
+    private void DisplayCourseChartForOtherCollege(string strCourseQry)
+    {
+        objDM.OpenSQLConnection();
+        SqlDataReader dr = objDM.GetSQLDataReader(strCourseQry);
+        DataTable dt = new DataTable();
+        dt.Load(dr);
+        dr.Dispose();
+        //Bind to script
+        FnCourseChartForOtherCollegeSGoogleCHartBind(dt);
+        objDM.CloseConnection();
+
+    }
+    private void FnCourseChartForOtherCollegeSGoogleCHartBind(DataTable DT)
+    {
+        string Script = "<script type=\"text/javascript\" src=\"https://www.google.com/jsapi\"></script>";
+        Script += "<script type=\"text/javascript\">";
+        // Load the Visualization API and the piechart package.
+        Script += " google.load('visualization', '1.0', { 'packages': ['corechart'] });";
+
+        // Set a callback to run when the Google Visualization API is loaded.
+        Script += " google.setOnLoadCallback(drawChart);";
+        // Callback that creates and populates a data table, 
+        // instantiates the pie chart, passes in the data and
+        // draws it.
+        Script += " function drawChart() {";
+        // Create the data table.
+        Script += " var data = new google.visualization.DataTable();";
+        Script += " data.addColumn('string', 'Topping');";
+        Script += " data.addColumn('number', 'Course');";
+        Script += "data.addRows(" + FnGetChartStringMAs(DT) + ");";
+        //Script += " data.addRows([['Mushrooms', 5], ['Onions', 1], ['Olives', 1], ['Zucchini', 1], ['Pepperoni', 2], ['Madhu', 2], ['Mushrooms', 5], ['Onions', 1], ['Olives', 1], ['Zucchini', 1], ['Pepperoni', 2], ['Madhu', 2]]);";
+
+        // Set chart options
+        Script += " var options = { 'title': 'Course Members'};";
+        // Instantiate and draw our chart, passing in some options.// ,pieHole: 0.2,'width': 570,'height': 470
+
+        Script += " var chart = new google.visualization.ColumnChart(document.getElementById('CourseChartForOtherCollege_Div'));";
+
+        //     Script += " var chart = new google.visualization.PieChart(document.getElementById('chart_div'));";
+
+        Script += " chart.draw(data, options);";
+        Script += " }";
+        Script += " </script>";
+        //  Script+="  }";
+
+        Page.RegisterClientScriptBlock("ClientScript4", Script);
+    }
+    #endregion
+
+    #endregion
+
+    public string FnGetChartStringMAs(DataTable DT)
+    {
+        string strReturn = "[";
+        for (int i = 0; i < DT.Rows.Count; i++)
+        {
+            if (strReturn == "[")
+            {
+                strReturn += "['" + DT.Rows[i][0].ToString() + "'," + DT.Rows[i][1].ToString() + "]";
+            }
+            else
+            {
+                strReturn += "," + "['" + DT.Rows[i][0].ToString() + "'," + DT.Rows[i][1].ToString() + "]";
+            }
+        }
+        strReturn += "]";
+        strReturn = strReturn.Replace(".", "").Replace("@", "").Replace("\n", "");
+        return strReturn;
+    }
+
+    private string getStall(string St, DataTable dt)
+    {
+        var rows = from row in dt.AsEnumerable()
+                   where row.Field<string>("stallnum").Trim() == St
+                   select row;
+
+        DataRow[] rowsArray = rows.ToArray();
+        DataTable d = rows.CopyToDataTable();
+        return d.Rows[0]["stallname"].ToString();
+
+    }
+
+    protected void BtnViewChart_Click(object sender, EventArgs e)
+    {
+        string strAdminRoleType = Request.Cookies["InstAdmin_RoleType"].Value.ToString();
+        int InstitutionMid = int.Parse(Request.Cookies["InstAdmin_InstitutionMid"].Value.ToString());
+
+        if (strAdminRoleType == "Super Admin")
+        {
+            ///  pnlInstitutionChart.Visible = true;
+            DisplayChartInstitution();
+            //  ddlInstitution_SelectedIndexChanged(null, null);
+
+        }
+        else
+        {
+            //  pnlInstitutionChart.Visible = false;
+            //ddlInstitution_SelectedIndexChanged(null, null);
+            //  DisplayChartCourse(strCourseQry);
+        }
+    }
+}

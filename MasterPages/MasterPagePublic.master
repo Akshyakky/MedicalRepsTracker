@@ -1,0 +1,514 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPagePublic.master.cs"
+    Inherits="MasterPages_MasterPagePublic" %>
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>rTracker</title>
+    <link rel="shortcut icon" href="../AspxImages/tabrTracker.jpg">
+    <!-- Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="keywords" content="MeditekTracker" />
+    <script>
+        addEventListener("load", function () {
+            setTimeout(hideURLbar, 0);
+        }, false);
+
+        function hideURLbar() {
+            window.scrollTo(0, 1);
+        }
+    </script>
+    <!-- //Meta Tags -->
+    <!-- Style-sheets -->
+    <!-- Bootstrap Css -->
+    <link href="../ASPXStyles/css/bootstrap.css" rel="stylesheet" type="text/css" media="all" />
+    <!-- Bootstrap Css -->
+    <!-- Bars Css -->
+    <link rel="stylesheet" href="../ASPXStyles/css/bar.css">
+    <!--// Bars Css -->
+    <!-- Calender Css -->
+    <link rel="stylesheet" type="text/css" href="../ASPXStyles/css/pignose.calender.css" />
+    <!--// Calender Css -->
+    <!-- Common Css -->
+    <link href="../ASPXStyles/css/style.css" rel="stylesheet" type="text/css" media="all" />
+    <!--// Common Css -->
+    <!-- Nav Css -->
+    <link rel="stylesheet" href="../ASPXStyles/css/style4.css">
+    <!--// Nav Css -->
+    <!-- Fontawesome Css -->
+    <link href="../ASPXStyles/css/fontawesome-all.css" rel="stylesheet">
+    <link href="../ASPXStyles/css/font-awesome.css" rel="stylesheet" />
+    <link href="../ASPXStyles/css/custom.css" rel="stylesheet" />
+    <!--// Fontawesome Css -->
+    <!--// Style-sheets -->
+    <!--web-fonts-->
+    <link href="//fonts.googleapis.com/css?family=Poiret+One" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <style type="text/css">
+        .RadioButtonWidth label
+        {
+            margin: 4px 6px 0;
+            margin-top: -25px;
+            font-size: 11.5 pt;
+        }
+
+        .LabelStyles
+        {
+            color: Black;
+            font-weight: bold;
+            font-size: 11.5 pt;
+        }
+
+        @media (max-width: 1366px)
+        {
+            .aligntext
+            {
+                text-align: right;
+            }
+
+            .TextBox
+            {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 360px)
+        {
+            .aligntext
+            {
+                text-align: left;
+            }
+
+            .aligntext1
+            {
+                text-align: left;
+            }
+
+            .TextBox
+            {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 1280px)
+        {
+            .aligntext
+            {
+                text-align: left;
+            }
+
+            .aligntext1
+            {
+                text-align: left;
+            }
+
+            .TextBox
+            {
+                width: 100%;
+            }
+        }
+    </style>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+   <form id="form1" runat="server">
+        <div>
+            <div>
+
+                <br />
+                <div class="row">
+                    <div class="col-md-12" align="center">
+
+                        <%--<img src="../AspxImages/ayushbanner.jpg" width="100%" />--%>
+                 
+
+                    </div>
+                </div>
+
+                <br />
+            </div>
+            <%--      <div class="row">
+                <div class="col-md-12" align="center" style="background-color: #960e00;">
+                    <br />
+                </div>
+            </div>--%>
+     
+            <!-- use jssor.slider.debug.js instead for debug -->
+            <style>
+                /* jssor slider bullet navigator skin 05 css */
+                /*
+        .jssorb05 div           (normal)
+        .jssorb05 div:hover     (normal mouseover)
+        .jssorb05 .av           (active)
+        .jssorb05 .av:hover     (active mouseover)
+        .jssorb05 .dn           (mousedown)
+        */
+                .jssorb05
+                {
+                    position: absolute;
+                }
+
+                    .jssorb05 div, .jssorb05 div:hover, .jssorb05 .av
+                    {
+                        position: absolute; /* size of bullet elment */
+                        width: 16px;
+                        height: 16px;
+                        background: url('../ASPXStyles/banner/img/b05.png') no-repeat;
+                        overflow: hidden;
+                        cursor: pointer;
+                    }
+
+                    .jssorb05 div
+                    {
+                        background-position: -7px -7px;
+                    }
+
+                        .jssorb05 div:hover, .jssorb05 .av:hover
+                        {
+                            background-position: -37px -7px;
+                        }
+
+                    .jssorb05 .av
+                    {
+                        background-position: -67px -7px;
+                    }
+
+                    .jssorb05 .dn, .jssorb05 .dn:hover
+                    {
+                        background-position: -97px -7px;
+                    }
+
+                /* jssor slider arrow navigator skin 12 css */
+                /*
+        .jssora12l                  (normal)
+        .jssora12r                  (normal)
+        .jssora12l:hover            (normal mouseover)
+        .jssora12r:hover            (normal mouseover)
+        .jssora12l.jssora12ldn      (mousedown)
+        .jssora12r.jssora12rdn      (mousedown)
+        */
+                .jssora12l, .jssora12r
+                {
+                    display: block;
+                    position: absolute; /* size of arrow element */
+                    width: 30px;
+                    height: 46px;
+                    cursor: pointer;
+                    background: url('../ASPXStyles/banner/img/a12.png') no-repeat;
+                    overflow: hidden;
+                }
+
+                .jssora12l
+                {
+                    background-position: -16px -37px;
+                }
+
+                .jssora12r
+                {
+                    background-position: -75px -37px;
+                }
+
+                .jssora12l:hover
+                {
+                    background-position: -136px -37px;
+                }
+
+                .jssora12r:hover
+                {
+                    background-position: -195px -37px;
+                }
+
+                .jssora12l.jssora12ldn
+                {
+                    background-position: -256px -37px;
+                }
+
+                .jssora12r.jssora12rdn
+                {
+                    background-position: -315px -37px;
+                }
+            </style>
+             <asp:ContentPlaceHolder ID="Header" runat="server">
+            </asp:ContentPlaceHolder>
+            <asp:ContentPlaceHolder ID="Body" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+        <div>
+        </div>
+        <div>
+            <div class="copyright-w3layouts py-xl-3 py-2 mt-xl-5 mt-4 text-center">
+                <p align="center" style="color: #fff; text-align: center;">
+                    © 2019 rTracker. All Rights Reserved </a>
+                    <%-- | Follow Us On : <a href="" style="color: #FFFF00;"><i class="fa fa-facebook"></i>--%>
+                        <a href="../WebPages/AdminLogin.aspx">Admin</a>
+                    </a>
+                </p>
+            </div>
+            <asp:ContentPlaceHolder ID="Footer" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+        <script src="../ASPXStyles/js/jquery-2.2.3.min.js"></script>
+        <!-- //Required common Js -->
+        <!-- loading-gif Js -->
+        <script src="../ASPXStyles/js/modernizr.js"></script>
+        <script>
+            //paste this code under head tag or in a seperate js file.
+            // Wait for window load
+            $(window).load(function () {
+                // Animate loader off screen
+                $(".se-pre-con").fadeOut("slow");;
+            });
+        </script>
+        <!--// loading-gif Js -->
+        <!-- Sidebar-nav Js -->
+        <script>
+            $(document).ready(function () {
+                $('#sidebarCollapse').on('click', function () {
+                    $('#sidebar').toggleClass('active');
+                });
+            });
+        </script>
+        <!--// Sidebar-nav Js -->
+        <!-- Graph -->
+        <script src="../ASPXStyles/js/SimpleChart.js"></script>
+        <script>
+            var graphdata4 = {
+                linecolor: "Random",
+                title: "Thursday",
+                values: [{
+                    X: "6",
+                    Y: 300.00
+                },
+                            {
+                                X: "7",
+                                Y: 101.98
+                            },
+                            {
+                                X: "8",
+                                Y: 140.00
+                            },
+                            {
+                                X: "9",
+                                Y: 340.00
+                            },
+                            {
+                                X: "10",
+                                Y: 470.25
+                            },
+                            {
+                                X: "11",
+                                Y: 180.56
+                            },
+                            {
+                                X: "12",
+                                Y: 680.57
+                            },
+                            {
+                                X: "13",
+                                Y: 740.00
+                            },
+                            {
+                                X: "14",
+                                Y: 800.89
+                            },
+                            {
+                                X: "15",
+                                Y: 420.57
+                            },
+                            {
+                                X: "16",
+                                Y: 980.24
+                            },
+                            {
+                                X: "17",
+                                Y: 1080.00
+                            },
+                            {
+                                X: "18",
+                                Y: 140.24
+                            },
+                            {
+                                X: "19",
+                                Y: 140.58
+                            },
+                            {
+                                X: "20",
+                                Y: 110.54
+                            },
+                            {
+                                X: "21",
+                                Y: 480.00
+                            },
+                            {
+                                X: "22",
+                                Y: 580.00
+                            },
+                            {
+                                X: "23",
+                                Y: 340.89
+                            },
+                            {
+                                X: "0",
+                                Y: 100.26
+                            },
+                            {
+                                X: "1",
+                                Y: 1480.89
+                            },
+                            {
+                                X: "2",
+                                Y: 1380.87
+                            },
+                            {
+                                X: "3",
+                                Y: 1640.00
+                            },
+                            {
+                                X: "4",
+                                Y: 1700.00
+                            }
+                ]
+            };
+            $(function () {
+                $("#Hybridgraph").SimpleChart({
+                    ChartType: "Hybrid",
+                    toolwidth: "50",
+                    toolheight: "25",
+                    axiscolor: "#E6E6E6",
+                    textcolor: "#6E6E6E",
+                    showlegends: false,
+                    data: [graphdata4],
+                    legendsize: "140",
+                    legendposition: 'bottom',
+                    xaxislabel: 'Hours',
+                    title: 'Weekly Profit',
+                    yaxislabel: 'Profit in $'
+                });
+            });
+        </script>
+        <!--// Graph -->
+        <!-- Bar-chart -->
+        <script src="../ASPXStyles/js/rumcaJS.js"></script>
+        <script src="../ASPXStyles/js/example.js"></script>
+        <!--// Bar-chart -->
+        <!-- Calender -->
+        <script src="../ASPXStyles/js/moment.min.js"></script>
+        <script src="../ASPXStyles/js/pignose.calender.js"></script>
+        <script>
+            //<![CDATA[
+            $(function () {
+                $('.calender').pignoseCalender({
+                    select: function (date, obj) {
+                        obj.calender.parent().next().show().text('You selected ' +
+                                    (date[0] === null ? 'null' : date[0].format('YYYY-MM-DD')) +
+                                    '.');
+                    }
+                });
+
+                $('.multi-select-calender').pignoseCalender({
+                    multiple: true,
+                    select: function (date, obj) {
+                        obj.calender.parent().next().show().text('You selected ' +
+                                    (date[0] === null ? 'null' : date[0].format('YYYY-MM-DD')) +
+                                    '~' +
+                                    (date[1] === null ? 'null' : date[1].format('YYYY-MM-DD')) +
+                                    '.');
+                    }
+                });
+            });
+            //]]>
+        </script>
+        <!--// Calender -->
+        <!-- profile-widget-dropdown js-->
+        <script src="../ASPXStyles/js/script.js"></script>
+        <!--// profile-widget-dropdown js-->
+        <!-- Count-down -->
+        <script src="../ASPXStyles/js/simplyCountdown.js"></script>
+        <link href="../ASPXStyles/css/simplyCountdown.css" rel='stylesheet' type='text/css' />
+        <script>
+            var d = new Date();
+            simplyCountdown('simply-countdown-custom', {
+                year: d.getFullYear(),
+                month: d.getMonth() + 2,
+                day: 25
+            });
+        </script>
+        <!--// Count-down -->
+        <!-- pie-chart -->
+        <script src='../ASPXStyles/js/amcharts.js'></script>
+        <script>
+            var chart;
+            var legend;
+
+            var chartData = [{
+                country: "Lithuania",
+                value: 260
+            },
+                        {
+                            country: "Ireland",
+                            value: 201
+                        },
+                        {
+                            country: "Germany",
+                            value: 65
+                        },
+                        {
+                            country: "Australia",
+                            value: 39
+                        },
+                        {
+                            country: "UK",
+                            value: 19
+                        },
+                        {
+                            country: "Latvia",
+                            value: 10
+                        }
+            ];
+
+            AmCharts.ready(function () {
+                // PIE CHART
+                chart = new AmCharts.AmPieChart();
+                chart.dataProvider = chartData;
+                chart.titleField = "country";
+                chart.valueField = "value";
+                chart.outlineColor = "";
+                chart.outlineAlpha = 0.8;
+                chart.outlineThickness = 2;
+                // this makes the chart 3D
+                chart.depth3D = 20;
+                chart.angle = 30;
+
+                // WRITE
+                chart.write("chartdiv");
+            });
+        </script>
+        <!--// pie-chart -->
+        <!-- dropdown nav -->
+        <script>
+            $(document).ready(function () {
+                $(".dropdown").hover(
+                            function () {
+                                $('.dropdown-menu', this).stop(true, true).slideDown("fast");
+                                $(this).toggleClass('open');
+                            },
+                            function () {
+                                $('.dropdown-menu', this).stop(true, true).slideUp("fast");
+                                $(this).toggleClass('open');
+                            }
+                        );
+            });
+        </script>
+        <!-- //dropdown nav -->
+        <!-- Js for bootstrap working-->
+        <script src="../ASPXStyles/js/bootstrap.min.js"></script>
+    </form>
+    <link href="../autofiller/jquery-ui.css" rel="stylesheet" />
+    <%--    <link href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="Stylesheet" />--%>
+   <script src="../AspxStyles/js/jquery.min.js"></script>
+    <script src="../AspxStyles/js/jquery-ui.js"></script>
+   
+</body>
+</html>

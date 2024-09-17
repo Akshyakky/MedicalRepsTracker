@@ -1,0 +1,187 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/ADMIN/MasterPages/MasterPagePrivate.master"
+    AutoEventWireup="true" CodeFile="Home.aspx.cs" Inherits="WebPages_Home" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="Server">
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="Body" runat="Server">
+    <asp:ScriptManager ID="ScriptManager1" runat="server">
+    </asp:ScriptManager>
+    <div class="container-fluid" width="100%" style="font-size: 14px; background-color: white">
+        <br />
+        <div class="row">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-8" align="center">
+                <h2>
+                    Home</h2>
+            </div>
+            <div class="col-md-2">
+            </div>
+        </div>
+        <hr style="border: 1px solid #960e00" />
+        <br />
+        <!-- Main content -->
+        <div class="row">
+            <div class="col-md-12" align="center">
+                <asp:Label ID="lblMandatory" runat="server" CssClass="LabelStyles" Style="color: red"
+                    Text="(*) Field is Mandatory"></asp:Label>
+            </div>
+        </div>
+        <%--   <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+            <ContentTemplate>--%>
+        <asp:Panel ID="divSelectInstitution" runat="server">
+            <%--   <div id="divSelectInstitution" runat="server">--%>
+            <div class="row">
+                <div class="col-md-1">
+                </div>
+                <div class="col-md-10">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <asp:Label ID="lblMandatoryName" runat="server" CssClass="LabelStyleValidation" Font-Bold="True"
+                                Text="*" ForeColor="red"></asp:Label>
+                            <asp:Label ID="Label3" runat="server" CssClass="LabelStyles" Text="Institution Name : "></asp:Label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <asp:DropDownList ID="ddlInstitution" runat="server" AutoPostBack="true" CssClass="form-control"
+                                TabIndex="1" OnSelectedIndexChanged="ddlInstitution_SelectedIndexChanged">
+                            </asp:DropDownList>
+                            <asp:RequiredFieldValidator ID="RequiredFieldValidator5" runat="server" ControlToValidate="ddlInstitution"
+                                CssClass="LabelStyleRequired" ErrorMessage="Select Institution Name" InitialValue="0"
+                                SetFocusOnError="True"></asp:RequiredFieldValidator>
+                        </div>
+                        <div class="col-md-6" align="right">
+                            <asp:Button ID="BtnViewChart" runat="server" Text="View Chart" Width="100px" CausesValidation="false"
+                                CssClass="btn btn-primary" TabIndex="30" OnClick="BtnViewChart_Click" />
+                        </div>
+                        <%--  <asp:Label ID="lblInstiAlumniHomeMid" runat="server" CssClass="LabelStyles" Visible="false"></asp:Label>--%>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+            </div>
+            <%--</div>--%>
+        </asp:Panel>
+        <asp:Panel ID="pnlInstitutionChart" runat="server">
+            <div class="row">
+                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+                    <div id="InstituionChart_Div">
+                    </div>
+                </div>
+            </div>
+        </asp:Panel>
+        <br />
+        <div class="row">
+            <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
+                <div id="UGCourseChart_Div">
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
+                <div id="PGCourseChart_Div">
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
+                <div id="SuperSpclCourseChart_Div">
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
+                <div id="CourseChartForOtherCollege_Div" width="80%">
+                </div>
+            </div>
+        </div>
+        <br />
+        <asp:Panel ID="divMemberDetails" runat="server" Visible="false">
+            <hr />
+            <div class="row">
+                <div class="col-md-1">
+                </div>
+                <div class="col-md-10">
+                    <div class="row adminrowStyle">
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <span class="info-box-icon" style="background-color: #173956; color: white"><i class="fa fa-registered">
+                                </i></span>
+                                <div class="info-box-content" style="width: 100%;">
+                                    <span class="info-box-text">
+                                        <br />
+                                        Pending Registration </span><span class="info-box-number" style="text-align: center;
+                                            padding-right: 95px;"><a id="a_PendingReg" href='ViewMembers.aspx?Opt=1&INSTMID='
+                                                runat="server" title="Click Here">
+                                                <asp:Label ID="lblMemberRequest" runat="server" Text="0" ForeColor="#1B2EE1" Style="text-decoration: underline;"></asp:Label></a></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <span class="info-box-icon" style="background-color: #173956; color: white"><i class="fa fa-thumbs-up">
+                                </i></span>
+                                <div class="info-box-content" style="width: 100%;">
+                                    <span class="info-box-text">
+                                        <br />
+                                        Approved Members</span> <span class="info-box-number" style="text-align: center;
+                                            padding-right: 95px;"><a id="a_ApprovedReg" href='ViewMembers.aspx?Opt=2&INSTMID='
+                                                runat="server" title="Click Here">
+                                                <asp:Label ID="lblApprvdMem" runat="server" Text="0" ForeColor="#1B2EE1" Style="text-decoration: underline;"></asp:Label></a></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-1">
+                </div>
+                <div class="col-md-10">
+                    <div class="row adminrowStyle">
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <span class="info-box-icon" style="background-color: #173956; color: white"><i class="fa fa-users">
+                                </i></span>
+                                <div class="info-box-content" style="width: 100%;">
+                                    <span class="info-box-text">
+                                        <br />
+                                        Total Members</span> <span class="info-box-number" style="text-align: center; padding-right: 95px;">
+                                            <a id="a_TotalReg" href='ViewMembers.aspx?Opt=3&INSTMID=' runat="server" title="Click Here">
+                                                <asp:Label ID="lblTotalMembers" runat="server" Text="0" ForeColor="#1B2EE1" Style="text-decoration: underline;"></asp:Label></a></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <span class="info-box-icon" style="background-color: #173956; color: white"><i class="fa fa-commenting-o">
+                                </i></span>
+                                <div class="info-box-content" style="width: 100%;">
+                                    <span class="info-box-text">Total SMS Sent
+                                        <br />
+                                    </span><span class="info-box-number" style="text-align: center; padding-right: 95px;">
+                                        <asp:Label ID="lblSmsSent" runat="server" Text="0" ForeColor="#1B2EE1"></asp:Label></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+            </div>
+        </asp:Panel>
+        <%--  </div>--%>
+        <br />
+        <br />
+        <%-- </ContentTemplate>
+          <Triggers>
+            <asp:PostBackTrigger ControlID="ddlInstitution_SelectedIndexChanged" />
+         
+            </Triggers>
+        </asp:UpdatePanel>--%>
+    </div>
+</asp:Content>
